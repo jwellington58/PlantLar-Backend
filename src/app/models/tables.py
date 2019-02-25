@@ -6,27 +6,42 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
-    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'))
 
-    profile = db.relationship('User', backref='user', uselist=False)
-
-    def __init__(self, username, password, profile_id):
+    def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.profile_id = profile_id
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return str(self.id)
 
 
 class Profile(db.Model):
     __tablename__ = 'profile'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    user = db.relationship('Profile', backref='profile', uselist=False)
 
     posts = db.relationship('Post', backref='post', lazy='dynamic')
     followers = db.relationship('Folower_Followed', backref='follower_followed', lazy='dynamic')
     followeds = db.relationship('Folower_Followed', backref='follower_followed', lazy='dynamic')
 
-    def __init__(self, name):
+    def __init__(self, name, user_id):
         self.name = name
+        self.user_id = user_id
 
 
 class Post(db.Model):
