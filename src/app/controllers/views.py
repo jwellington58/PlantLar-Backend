@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from app import app, db
-from app.models.tables import User, Profile
+from app.models.tables import User, Profile, Post
 
 # users = [
 #     {
@@ -66,3 +66,36 @@ def profile():
         db.session.commit()
 
         return jsonify({'profile': profile}), 201
+
+
+@app.route('/post', methods=['GET', 'POST'])
+def post():
+    if request.method == 'GET':
+        posts = []
+        postRes = Post.query.all()
+        for ps in postRes:
+            post = {
+                'id': ps.id,
+                'legend': ps.legend,
+                'post_date': ps.post_date,
+                'profile_id': ps.profile_id,
+            }
+            posts.append(posts)
+       
+        return jsonify({'posts': posts})
+    else:
+        post = {
+            'legend': request.json['legend'],
+            'post_date': request.json['post_date'],
+            'profile_id': request.json['profile_id'],
+        }
+        legend = post['legend']
+        post_date = post['post_date']
+        profile_id = post['profile_id']
+        #print('UserName {}'.format(username))
+        p = Post(legend, post_date, profile_id)
+
+        db.session.add(p)
+        db.session.commit()
+
+        return jsonify({'post': post}), 201
