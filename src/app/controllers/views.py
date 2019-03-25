@@ -36,10 +36,27 @@ def create_user():
     return jsonify({'user': user}), 201
 
 
+@app.route('/user/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    user = {
+        'username': request.json['username'],
+        'password': request.json['password']
+    }
+    userRes = User.query.filter_by(id=user_id).first_or_404()
+    if userRes == None:
+        abort(404)
+    userRes.username = user['username']
+    userRes.password = user['password']
+
+    db.session.commit()
+
+    return jsonify({'user': user}), 204
+
+
 @app.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     userRes = User.query.filter_by(id=user_id).first_or_404()
-    if userRes==None:
+    if userRes == None:
         abort(404)
     db.session.delete(userRes)
     db.session.commit()
@@ -79,10 +96,26 @@ def create_profile():
     return jsonify({'profile': profile}), 201
 
 
+@app.route('/profile/<int:profile_id>', methods=['PUT'])
+def update_profile(profile_id):
+    profile = {
+        'name': request.json['name'],
+        'user_id': request.json['user_id']
+    }
+    p = Profile.query.filter_by(id=profile_id).first_or_404()
+    if p == None:
+        abort(404)
+    p.name = profile['name']
+    p.user_id = profile['user_id']
+
+    db.session.commit()
+
+    return jsonify({'profile': profile}), 204
+
 @app.route('/profile/<int:profile_id>', methods=['DELETE'])
 def delete_profile(profile_id):
     p = Profile.query.filter_by(id=profile_id).first_or_404()
-    if p==None:
+    if p == None:
         abort(404)
     db.session.delete(p)
     db.session.commit()
@@ -116,12 +149,31 @@ def create_post():
     legend = post['legend']
     post_date = post['post_date']
     profile_id = post['profile_id']
-    p = Post(legend, post_date, profile_id)
+    po = Post(legend, post_date, profile_id)
 
-    db.session.add(p)
+    db.session.add(po)
     db.session.commit()
 
     return jsonify({'post': post}), 201
+
+
+@app.route('/post/<int:post_id>', methods=['PUT'])
+def update_post(post_id):
+    post = {
+        'legend': request.json['legend'],
+        'post_date': request.json['post_date'],
+        'profile_id': request.json['profile_id']
+    }
+    po = Post.query.filter_by(id=post_id).first_or_404()
+    if po == None:
+        abort(404)
+    po.legend = post['legend']
+    po.post_date = post['post_date']
+    po.profile_id = post['profile_id']
+
+    db.session.commit()
+
+    return jsonify({'post': post}), 204
 
 
 @app.route('/post/<int:post_id>', methods=['DELETE'])
@@ -168,7 +220,24 @@ def create_photo():
     return jsonify({'photo': photo}), 201
 
 
-@app.route('/post/<int:post_id>', methods=['DELETE'])
+@app.route('/photo/<int:photo_id>', methods=['PUT'])
+def update_photo(photo_id):
+    photo = {
+        'path_photo': request.json['path_photo'],
+        'post_id': request.json['post_id']
+    }
+    pho = Photo.query.filter_by(id=photo_id).first_or_404()
+    if pho == None:
+        abort(404)
+    pho.path_photo = photo['path_photo']
+    pho.post_id = photo['post_id']
+
+    db.session.commit()
+
+    return jsonify({'photo': photo}), 204
+
+
+@app.route('/photo/<int:photo_id>', methods=['DELETE'])
 def delete_photo(photo_id):
     pho = Photo.query.filter_by(id=photo_id).first_or_404()
     if pho==None:
